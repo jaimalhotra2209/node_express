@@ -1,30 +1,26 @@
-# Use the official Node.js image from Docker Hub
 FROM node:16
 
-# Install system dependencies (for native builds)
+# Install system dependencies for native module builds
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json if available
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Clean npm cache (optional, helps prevent strange issues)
-RUN npm cache clean --force
+# Install dependencies with debugging output and unsafe permissions
+RUN npm install --verbose --unsafe-perm || cat npm-debug.log
 
-# Install dependencies, show full logs on error
-RUN npm install --verbose
-
-# Copy the rest of the app files
+# Copy the rest of the app
 COPY . .
 
-# Expose the port the app will run on
+# Expose the app port
 EXPOSE 3000
 
-# Command to run the app
+# Run the app
 CMD ["node", "app.js"]
